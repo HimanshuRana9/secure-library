@@ -1,0 +1,136 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<h3 class="mb-4 text-white">📖 My Transactions</h3>
+
+<div class="card shadow-sm">
+    <div class="table-responsive">
+
+        <table class="table align-middle table-hover mb-0">
+
+            <thead class="table-dark">
+                <tr>
+                    <th>Book</th>
+                    <th>Borrow</th>
+                    <th>Due</th>
+                    <th>Pickup</th>
+                    <th>Return</th>
+                    <th>Status</th>
+                    <th>Fine</th>
+                    <th class="text-center">Action</th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+                {% for t in transactions %}
+                <tr>
+
+                    <!-- Book Info -->
+                    <td>
+                        <strong>{{ t.book.title }}</strong><br>
+                        <small class="text-muted">{{ t.book.author }}</small>
+                    </td>
+
+                    <td>{{ t.borrow_date|date:"M d, H:i" }}</td>
+                    <td>{{ t.due_date|date:"M d, H:i" }}</td>
+                    <td>{{ t.pickup_time|date:"M d, H:i" }}</td>
+                    <td>{{ t.return_date|date:"M d, H:i"|default:"-" }}</td>
+
+                    <!-- Status -->
+                    <td>
+                        {% if t.status == "RESERVED" %}
+                        <span class="badge bg-secondary">RESERVED</span>
+                        {% elif t.status == "BORROWED" %}
+                        <span class="badge bg-primary">BORROWED</span>
+                        {% elif t.status == "RETURNED" %}
+                        <span class="badge bg-success">RETURNED</span>
+                        {% elif t.status == "LOST" %}
+                        <span class="badge bg-danger">LOST</span>
+                        {% elif t.status == "DAMAGED" %}
+                        <span class="badge bg-warning text-dark">DAMAGED</span>
+                        {% endif %}
+                    </td>
+
+                    <!-- Fine -->
+                    <td>
+                        {% if t.fine > 0 %}
+                        {% if t.is_paid %}
+                        <span class="badge bg-success">Paid</span>
+                        {% else %}
+                        <span class="text-danger fw-bold">₹{{ t.fine }}</span>
+                        {% endif %}
+                        {% else %}
+                        <span class="text-success">₹0</span>
+                        {% endif %}
+                    </td>
+
+                    <!-- Action -->
+                    <td class="text-center">
+
+                        {% if t.status == "RESERVED" %}
+                        <form method="POST" action="{% url 'pickup_book' t.id %}" style="display:inline;">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-info btn-sm">
+                                Pickup
+                            </button>
+                        </form>
+
+                        {% elif t.status == "BORROWED" %}
+                        <form method="POST" action="{% url 'return_book' t.id %}" style="display:inline;">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-warning btn-sm">
+                                Return
+                            </button>
+                        </form>
+                        <form method="POST" action="{% url 'mark_lost' t.id %}" style="display:inline;">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-danger btn-sm">
+                                Lost
+                            </button>
+                        </form>
+                        <form method="POST" action="{% url 'mark_damaged' t.id %}" style="display:inline;">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-secondary btn-sm">
+                                Damaged
+                            </button>
+                        </form>
+
+                        {% if t.fine > 0 and not t.is_paid %}
+                        <a href="{% url 'pay_fine' t.id %}" class="btn btn-primary btn-sm">
+                            Pay Fine
+                        </a>
+                        {% endif %}
+
+                        {% else %}
+
+                        {% if t.fine > 0 and not t.is_paid %}
+                        <a href="{% url 'pay_fine' t.id %}" class="btn btn-primary btn-sm mt-1">
+                            Pay Fine
+                        </a>
+                        {% else %}
+                        -
+                        {% endif %}
+
+                        {% endif %}
+
+                    </td>
+
+                </tr>
+
+                {% empty %}
+                <tr>
+                    <td colspan="8" class="text-center p-4">
+                        No transactions found
+                    </td>
+                </tr>
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+</div>
+
+{% endblock %}

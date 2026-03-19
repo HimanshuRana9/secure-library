@@ -1,0 +1,359 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+
+<!-- Dashboard Header -->
+<div class="d-flex justify-content-between align-items-center mb-4 fade-in">
+    <div>
+        <h2 class="fw-bold mb-1 text-white">🦉 Dashboard</h2>
+        <p class="text-white-50">Welcome back, {{ request.user.username }}</p>
+    </div>
+    <div class="d-flex gap-2">
+        <span class="badge bg-light text-dark p-3 rounded-3">
+            <i data-feather="calendar" style="width: 16px; height: 16px;"></i>
+            {% now "F j, Y" %}
+        </span>
+    </div>
+</div>
+
+<!-- Stats Cards Row -->
+<div class="row g-4 mb-5">
+
+    {% if request.user.is_staff %}
+    <!-- Total Revenue Card -->
+    <div class="col-md-3 fade-in" style="animation-delay: 0.1s">
+        <div class="stat-card">
+            <div class="stat-label">
+                <i data-feather="dollar-sign" style="width: 18px; height: 18px;"></i>
+                Total Revenue
+            </div>
+            <div class="stat-value text-success">₹{{ total_revenue }}</div>
+            <div class="mt-2 small text-muted">
+                This month: ₹{{ monthly_revenue|default:'0' }}
+            </div>
+        </div>
+    </div>
+
+    <!-- Lost Books Card -->
+    <div class="col-md-3 fade-in" style="animation-delay: 0.2s">
+        <div class="stat-card">
+            <div class="stat-label">
+                <i data-feather="x-circle" style="width: 18px; height: 18px;"></i>
+                Lost Books
+            </div>
+            <div class="stat-value text-danger">{{ total_lost }}</div>
+            <div class="mt-2 small text-muted">
+                + Damaged: {{ total_damaged }}
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <!-- User Total Borrowed Card -->
+    <div class="col-md-3 fade-in" style="animation-delay: 0.1s">
+        <div class="stat-card">
+            <div class="stat-label">
+                <i data-feather="book-open" style="width: 18px; height: 18px;"></i>
+                Total Borrowed
+            </div>
+            <div class="stat-value text-primary">{{ total_borrowed|default:'0' }}</div>
+            <div class="mt-2 small text-muted">
+                All-time history
+            </div>
+        </div>
+    </div>
+
+    <!-- User Total Returned Card -->
+    <div class="col-md-3 fade-in" style="animation-delay: 0.2s">
+        <div class="stat-card">
+            <div class="stat-label">
+                <i data-feather="check-circle" style="width: 18px; height: 18px;"></i>
+                Total Returned
+            </div>
+            <div class="stat-value text-success">{{ total_returned|default:'0' }}</div>
+            <div class="mt-2 small text-muted">
+                Books safely returned
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Due Soon Card -->
+    <div class="col-md-3 fade-in" style="animation-delay: 0.3s">
+        <div class="stat-card">
+            <div class="stat-label">
+                <i data-feather="clock" style="width: 18px; height: 18px;"></i>
+                Due Soon
+            </div>
+            <div class="stat-value text-warning">{{ due_soon|default:'0' }}</div>
+            <div class="mt-2 small text-muted">
+                Next 7 days
+            </div>
+        </div>
+    </div>
+
+    <!-- Overdue Card -->
+    <div class="col-md-3 fade-in" style="animation-delay: 0.4s">
+        <div class="stat-card">
+            <div class="stat-label">
+                <i data-feather="alert-triangle" style="width: 18px; height: 18px;"></i>
+                Overdue
+            </div>
+            <div class="stat-value text-danger">{{ overdue|default:'0' }}</div>
+            <div class="mt-2 small text-muted">
+                Immediate action needed
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- Charts Row - FIXED HEIGHT CONTAINERS -->
+<div class="row g-4 mb-5 fade-in" style="animation-delay: 0.5s">
+
+    <div class="col-lg-8">
+        <div class="glass-card" style="height: 400px;"> <!-- FIXED: Added fixed height -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h5 class="fw-semibold mb-0">
+                    <i data-feather="activity" style="width: 20px; height: 20px;"></i>
+                    Your Borrowing Activity
+                </h5>
+                <span class="badge bg-primary">{{ months|length }} months</span>
+            </div>
+            <!-- Chart container with fixed height and relative positioning -->
+            <div style="position: relative; height: 300px; width: 100%;">
+                <canvas id="activityChart" style="display: block; width: 100%; height: 100%;"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <div class="glass-card" style="height: 400px;"> <!-- FIXED: Added fixed height -->
+            <h5 class="fw-semibold mb-4">
+                <i data-feather="pie-chart" style="width: 20px; height: 20px;"></i>
+                Book Status
+            </h5>
+            <!-- Chart container with fixed height -->
+            <div style="position: relative; height: 220px; width: 100%;">
+                <canvas id="statusChart" style="display: block; width: 100%; height: 100%;"></canvas>
+            </div>
+
+            <!-- Legend with Real Data -->
+            <div class="d-flex justify-content-between mt-4">
+                <div class="text-center">
+                    <span class="badge" style="background: #4f46e5;">&nbsp;&nbsp;</span>
+                    <small>Active ({{ active_borrows|length }})</small>
+                </div>
+                <div class="text-center">
+                    <span class="badge" style="background: #22c55e;">&nbsp;&nbsp;</span>
+                    <small>Returned ({{ total_returned|default:'0' }})</small>
+                </div>
+                <div class="text-center">
+                    <span class="badge" style="background: #f59e0b;">&nbsp;&nbsp;</span>
+                    <small>Lost ({{ total_lost }})</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- Active Borrowings Section -->
+<div class="fade-in" style="animation-delay: 0.6s">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h4 class="fw-bold mb-0">
+            <i data-feather="clock" style="width: 24px; height: 24px;"></i>
+            Active Borrowings
+        </h4>
+        <span class="badge bg-primary rounded-pill px-3 py-2">
+            {{ active_borrows|length }} Active
+        </span>
+    </div>
+
+    <div class="row g-4">
+
+        {% for t in active_borrows %}
+        <div class="col-lg-4 col-md-6 fade-in" style="animation-delay: {{ forloop.counter|add:'0.7' }}s">
+
+            <div class="borrow-card">
+
+                <div class="position-relative">
+                    {% if t.book.image %}
+                    <img src="{{ t.book.image.url }}" class="borrow-img" alt="{{ t.book.title }}">
+                    {% else %}
+                    <div class="borrow-img d-flex align-items-center justify-content-center bg-light">
+                        <i data-feather="book" style="width: 40px; height: 40px;" class="text-muted"></i>
+                    </div>
+                    {% endif %}
+
+                    <!-- Status Badge -->
+                    <span class="position-absolute top-0 end-0 m-3 borrow-badge 
+                        {% if t.status == 'BORROWED' %}
+                            {% if t.due_date and t.due_date < now %}badge-late
+                            {% else %}badge-borrowed{% endif %}
+                        {% elif t.status == 'RETURNED' %}badge-returned
+                        {% elif t.status == 'LOST' %}badge-lost
+                        {% elif t.status == 'DAMAGED' %}badge-damaged
+                        {% else %}badge-pending{% endif %}">
+                        {% if t.status == 'BORROWED' and t.due_date and t.due_date < now %} OVERDUE {% else %} {{
+                            t.get_status_display|default:t.status }} {% endif %} </span>
+                </div>
+
+                <div class="p-3">
+                    <h6 class="fw-bold mb-1">{{ t.book.title|truncatechars:35 }}</h6>
+                    <p class="small text-muted mb-2">{{ t.book.author }}</p>
+
+                    <div class="d-flex align-items-center gap-2 small mb-2">
+                        <i data-feather="map-pin" style="width: 14px; height: 14px;"></i>
+                        {{ t.book.library.name|default:"Library" }}
+                    </div>
+
+                    <div class="d-flex align-items-center gap-2 small mb-2">
+                        <i data-feather="calendar" style="width: 14px; height: 14px;"></i>
+                        Borrowed: <strong>{{ t.borrow_date|date:"M d, Y"|default:"N/A" }}</strong>
+                    </div>
+
+                    {% if t.due_date %}
+                    <div class="d-flex align-items-center gap-2 small mb-3">
+                        <i data-feather="clock" style="width: 14px; height: 14px;"></i>
+                        Due: <strong class="{% if t.due_date < now %}text-danger{% endif %}">
+                            {{ t.due_date|date:"M d, Y" }}
+                        </strong>
+                    </div>
+                    {% endif %}
+
+                    {% if t.fine > 0 %}
+                    <div class="mt-2 p-2 bg-danger bg-opacity-10 rounded-3">
+                        <small class="text-danger fw-bold">Fine: ₹{{ t.fine }}</small>
+                    </div>
+                    {% endif %}
+
+                </div>
+
+            </div>
+
+        </div>
+        {% empty %}
+        <div class="col-12 text-center py-5">
+            <i data-feather="inbox" style="width: 64px; height: 64px;" class="text-muted mb-3"></i>
+            <h4 class="text-muted">No active borrowings</h4>
+            <a href="{% url 'books' %}" class="btn btn-primary mt-3">Browse Books</a>
+        </div>
+        {% endfor %}
+
+    </div>
+
+</div>
+
+<!-- Inject Python Variables as JSON so Prettier cannot break them -->
+{{ months|json_script:"monthsData" }}
+{{ monthly_data|json_script:"monthlyData" }}
+
+<!-- prettier-ignore -->
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        feather.replace();
+
+        // Safely parse Django context data
+        const chartMonths = JSON.parse(document.getElementById('monthsData').textContent || "['Jan','Feb','Mar','Apr','May','Jun']");
+        const chartData = JSON.parse(document.getElementById('monthlyData').textContent || "[0,0,0,0,0,0]");
+
+        // Activity Chart - With proper sizing
+        const ctx1 = document.getElementById('activityChart').getContext('2d');
+        new Chart(ctx1, {
+            type: 'line',
+            data: {
+                labels: chartMonths,
+                datasets: [{
+                    label: 'Books Borrowed',
+                    data: chartData,
+                    borderColor: '#4f46e5',
+                    backgroundColor: 'rgba(79, 70, 229, 0.1)',
+                    borderWidth: 3,
+                    pointBackgroundColor: '#4f46e5',
+                    pointBorderColor: 'white',
+                    pointBorderWidth: 2,
+                    pointRadius: 5,
+                    pointHoverRadius: 7,
+                    tension: 0.4,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,  // CRITICAL: This prevents stretching
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function (context) {
+                                return `${context.raw} books`;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.05)'
+                        },
+                        ticks: {
+                            stepSize: 1,
+                            precision: 0
+                        }
+                    },
+                    x: {
+                        grid: {
+                            display: false
+                        }
+                    }
+                }
+            }
+        });
+
+        // Status Chart - With proper sizing
+        const ctx2 = document.getElementById('statusChart').getContext('2d');
+        new Chart(ctx2, {
+            type: 'doughnut',
+            data: {
+                labels: ['Active', 'Returned', 'Lost'],
+                datasets: [{
+                    data: [
+                        {{ active_borrows.count }},
+                {{ total_returned }},
+                    {{ total_lost }}
+                ],
+        backgroundColor: ['#4f46e5', '#22c55e', '#ef4444'],
+        borderWidth: 0,
+        hoverOffset: 8
+            }]
+        },
+        options: {
+        responsive: true,
+        maintainAspectRatio: false,  // CRITICAL: This prevents stretching
+        cutout: '70%',
+        plugins: {
+            legend: {
+                display: false
+            },
+            tooltip: {
+                callbacks: {
+                    label: function (context) {
+                        return `${context.label}: ${context.raw} books`;
+                    }
+                }
+            }
+        }
+    }
+    });
+});
+
+    // Pass current time to template for overdue comparison
+    window.now = new Date();
+    /* prettier-ignore-end */
+</script>
+
+{% endblock %}

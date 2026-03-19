@@ -1,0 +1,91 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+
+<h3 class="mb-4 text-white">💳 Pay Fine</h3>
+
+<div class="row justify-content-center">
+    <div class="col-md-6 col-lg-5">
+        <div class="card shadow border-0 rounded-4">
+            <div class="card-body p-5">
+                <div class="text-center mb-4">
+                    <h5 class="fw-bold text-muted">Checkout</h5>
+                    <div class="display-4 fw-bold text-danger mb-2">₹{{ transaction.fine }}</div>
+                    <p class="text-secondary small">Penalty for: <strong>{{ transaction.book.title }}</strong></p>
+                </div>
+
+                <hr class="mb-4">
+
+                {% if error %}
+                <div class="alert alert-danger py-3 border-0 rounded-3 mb-4">
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i> {{ error }}
+                </div>
+                <div class="text-center mt-3">
+                    <a href="{% url 'my_transactions' %}"
+                        class="btn btn-secondary w-100 py-3 fw-bold rounded-3 shadow-sm text-white">
+                        <i class="bi bi-arrow-left me-2"></i>Go Back
+                    </a>
+                </div>
+                {% else %}
+                <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
+                {% if transaction.book.library.qr_code %}
+                <div class="text-center mb-4">
+                    <h6 class="text-muted fw-bold mb-3">Pay Manually via UPI</h6>
+                    <div class="p-3 bg-light rounded-4 d-inline-block border shadow-sm mb-2">
+                        <img src="{{ transaction.book.library.qr_code.url }}" alt="Library UPI QR Code"
+                            class="img-fluid rounded" style="max-height: 280px; object-fit: contain;">
+                    </div>
+                    <p class="small text-muted">Scan with PhonePe, Google Pay, or Paytm</p>
+                </div>
+
+                <div class="d-flex align-items-center mb-4">
+                    <hr class="flex-grow-1"><span class="mx-3 text-muted small fw-bold">OR PAY ONLINE</span>
+                    <hr class="flex-grow-1">
+                </div>
+                {% endif %}
+
+                <button id="pay-btn" class="btn w-100 py-3 fw-bold rounded-3 shadow-sm text-white"
+                    style="transition: all 0.3s; background: linear-gradient(135deg, #198754, #146c43);">
+                    <i class="bi bi-shield-check me-2"></i>Pay ₹{{ transaction.fine }} with Razorpay
+                </button>
+
+                <div class="text-center mt-3 mb-2">
+                    <a href="{% url 'my_transactions' %}"
+                        class="btn btn-link text-decoration-none text-muted small">Cancel and return</a>
+                </div>
+
+                <script>
+                    var options = {
+                        "key": "{{ razorpay_key }}",
+                        "amount": "{{ amount }}",
+                        "currency": "INR",
+                        "name": "Secure Library",
+                        "description": "Library Fine Payment",
+                        "order_id": "{{ order_id }}",
+                        "handler": function (response) {
+                            // Redirect to success URL after payment
+                            window.location.href = "{% url 'process_payment' transaction.id %}?payment_id=" + response.razorpay_payment_id;
+                        }
+                    };
+
+                    document.getElementById('pay-btn').onclick = function (e) {
+                        e.preventDefault();
+                        if ("{{ razorpay_key }}" === "rzp_test_xxxxxxxxx") {
+                            // Simulate fake Razorpay test integration
+                            alert("Test Mode: Simulating successful Razorpay payment.");
+                            options.handler({ razorpay_payment_id: "fake_pay_" + Math.floor(Math.random() * 1000000) });
+                        } else {
+                            var rzp = new Razorpay(options);
+                            rzp.open();
+                        }
+                    }
+                </script>
+                {% endif %}
+
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

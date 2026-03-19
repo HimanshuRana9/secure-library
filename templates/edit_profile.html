@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="row w-100 py-4 h-100">
+    <div class="col-8 col-lg-6 mx-auto">
+        <div class="card border-0 shadow-lg" style="border-radius: 20px; overflow: hidden;">
+            <div class="card-header border-0 pb-0 position-relative"
+                style="background: linear-gradient(135deg, #1f1c2c 0%, #928dab 100%); height: 80px;">
+                <h5 class="text-white pt-2 ps-3 m-0"><i data-feather="user" class="me-2 mb-1"></i> Edit Profile</h5>
+            </div>
+
+            <div class="card-body px-4 pb-4" style="background-color: #f8f9fa;">
+
+                <div class="text-center" style="margin-top: -50px; margin-bottom: 20px;">
+                    <div class="mb-3 position-relative z-1 d-inline-block">
+                        {% if profile.profile_picture %}
+                        <img src="{{ profile.profile_picture.url }}"
+                            class="rounded-circle shadow border border-4 border-white object-fit-cover"
+                            style="width: 100px; height: 100px;" alt="Profile Picture">
+                        {% else %}
+                        <div class="rounded-circle text-white d-inline-flex align-items-center justify-content-center shadow border border-4 border-white"
+                            style="width: 100px; height: 100px; font-size: 38px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                            {{ user.username|make_list|first|upper }}
+                        </div>
+                        {% endif %}
+                    </div>
+                    <h5 class="fw-bold mb-0 text-dark">{{ user.username }}</h5>
+                    <p class="text-muted small">{{ user.email }}</p>
+                </div>
+
+                <form method="POST" enctype="multipart/form-data">
+                    {% csrf_token %}
+
+                    <div class="mb-3 p-3 bg-white rounded-3 shadow-sm border">
+                        <label class="form-label text-muted fw-bold small text-uppercase mb-1"><i data-feather="image"
+                                class="me-1" style="width:14px;height:14px;"></i> Profile Picture</label>
+                        <input type="file" name="profile_picture" class="form-control form-control-sm text-muted"
+                            accept="image/*">
+                        <small class="text-muted" style="font-size: 11px;">Upload a square image for best
+                            results.</small>
+                    </div>
+
+                    <div class="mb-3 p-3 bg-white rounded-3 shadow-sm border">
+                        <label class="form-label text-muted fw-bold small text-uppercase mb-1"><i data-feather="phone"
+                                class="me-1" style="width:14px;height:14px;"></i> Mobile Number</label>
+                        <input type="text" name="mobile_number" class="form-control"
+                            value="{{ profile.mobile_number|default:'' }}" placeholder="Enter mobile number">
+                    </div>
+
+                    <div class="mb-4 p-3 bg-white rounded-3 shadow-sm border">
+                        <label class="form-label text-muted fw-bold small text-uppercase mb-1"><i data-feather="map-pin"
+                                class="me-1" style="width:14px;height:14px;"></i> Location</label>
+                        <input type="text" name="location" class="form-control"
+                            value="{{ profile.location|default:'' }}" placeholder="Enter city or location">
+                    </div>
+
+                    <div class="d-flex justify-content-end gap-2">
+                        <a href="{% url 'dashboard' %}"
+                            class="btn btn-light shadow-sm text-secondary fw-bold px-4 rounded-pill">Cancel</a>
+                        <button type="submit"
+                            class="btn btn-primary shadow-sm fw-bold px-4 rounded-pill bg-gradient">Save
+                            Changes</button>
+                    </div>
+                </form>
+
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

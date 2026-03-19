@@ -1,0 +1,98 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<h3 class="mb-4 text-white">🛠 Admin Transactions</h3>
+
+<table class="table table-bordered bg-white shadow-sm">
+    <thead class="table-dark">
+        <tr>
+            <th>User</th>
+            <th>Book</th>
+            <th>Borrow Date</th>
+            <th>Due Date</th>
+            <th>Pickup Time</th>
+            <th>Return Date</th>
+            <th>Status</th>
+            <th>Fine</th>
+            <th>Admin Action</th>
+        </tr>
+    </thead>
+    <tbody>
+
+        {% for t in transactions %}
+        <tr>
+            <td>{{ t.user.username }}</td>
+            <td>{{ t.book.title }}</td>
+
+            <td>{{ t.borrow_date|date:"Y-m-d H:i" }}</td>
+            <td>{{ t.due_date|date:"Y-m-d H:i" }}</td>
+            <td>{{ t.pickup_time|date:"Y-m-d H:i" }}</td>
+            <td>{{ t.return_date|date:"Y-m-d H:i"|default:"-" }}</td>
+
+            <td>
+                {% if t.status == "BORROWED" %}
+                <span class="badge bg-primary">BORROWED</span>
+                {% elif t.status == "RETURNED" %}
+                <span class="badge bg-success">RETURNED</span>
+                {% elif t.status == "LOST" %}
+                <span class="badge bg-danger">LOST</span>
+                {% elif t.status == "DAMAGED" %}
+                <span class="badge bg-warning text-dark">DAMAGED</span>
+                {% endif %}
+            </td>
+
+            <td>
+                ₹{{ t.fine }}
+                {% if t.fine > 0 %}
+                <br>
+                {% if t.is_paid %}
+                <span class="badge bg-success ms-1">Paid</span>
+                {% else %}
+                <span class="badge bg-danger ms-1">Unpaid</span>
+                {% endif %}
+                {% endif %}
+            </td>
+
+            <td>
+                {% if t.status == "BORROWED" %}
+                <a href="{% url 'mark_lost' t.id %}" class="btn btn-danger btn-sm mb-1">
+                    Lost
+                </a>
+
+                <a href="{% url 'mark_damaged' t.id %}" class="btn btn-warning btn-sm">
+                    Damaged
+                </a>
+
+                {% if t.fine > 0 and not t.is_paid %}
+                <br>
+                <a href="{% url 'pay_fine' t.id %}" class="btn btn-primary btn-sm mt-1">
+                    Pay Fine
+                </a>
+                {% endif %}
+
+                {% else %}
+
+                {% if t.fine > 0 and not t.is_paid %}
+                <a href="{% url 'pay_fine' t.id %}" class="btn btn-primary btn-sm">
+                    Pay Fine
+                </a>
+                {% else %}
+                -
+                {% endif %}
+
+                {% endif %}
+            </td>
+        </tr>
+
+        {% empty %}
+        <tr>
+            <td colspan="9" class="text-center">
+                No transactions found
+            </td>
+        </tr>
+        {% endfor %}
+
+    </tbody>
+</table>
+
+{% endblock %}

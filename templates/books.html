@@ -1,0 +1,297 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<!-- Page Header with Count -->
+<div class="d-flex justify-content-between align-items-center mb-4 fade-in">
+    <div>
+        <h2 class="fw-bold mb-1 text-primary">📚 Explore Books</h2>
+        <p class="fw-bold mb-1 text-secondary">Discover your next great read by location</p>
+    </div>
+</div>
+
+<!-- Optional Category Filter (if you have categories) -->
+{% if categories %}
+<div class="mb-4 fade-in">
+    <div class="d-flex gap-2 flex-wrap">
+        <a href="{% url 'books' %}"
+            class="btn btn-outline-secondary rounded-pill px-4 {% if not selected_category %}active bg-dark text-white{% endif %}">
+            All Books
+        </a>
+        {% for cat in categories %}
+        <a href="?category={{ cat.0 }}"
+            class="btn btn-outline-secondary rounded-pill px-4 {% if selected_category == cat.0 %}active bg-dark text-white{% endif %}">
+            {{ cat.1 }}
+        </a>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
+<!-- Search Bar -->
+<div class="mb-4 fade-in">
+    <form action="{% url 'books' %}" method="GET" class="d-flex w-100">
+        <!-- Preserve category filter when searching -->
+        {% if selected_category %}
+        <input type="hidden" name="category" value="{{ selected_category }}">
+        {% endif %}
+
+        <div class="position-relative flex-grow-1 me-2">
+            <i data-feather="search" class="position-absolute top-50 translate-middle-y text-muted"
+                style="left: 15px; width: 18px; height: 18px;"></i>
+            <input type="text" name="q" class="form-control rounded-pill ps-5 py-2 border-0 shadow-sm"
+                placeholder="Search books by title, author..." value="{{ request.GET.q|default:'' }}">
+        </div>
+        <button type="submit" class="btn btn-primary rounded-pill px-4 shadow-sm">Search</button>
+    </form>
+</div>
+
+<!-- Book Grid - Premium Amazon Style -->
+<!-- Library Sections -->
+{% for group in grouped_libraries %}
+<div class="mb-5 fade-in">
+    <!-- Section Header for Library with Premium Glass Look -->
+    <div class="d-flex align-items-center justify-content-between mb-4 p-4 rounded-4 library-header-card">
+        <div class="d-flex align-items-center z-1 position-relative">
+            {% if group.library.logo %}
+            <div class="position-relative me-4">
+                <div class="position-absolute top-50 start-50 translate-middle w-100 h-100 rounded-circle bg-primary opacity-50 blur-sm"
+                    style="filter: blur(15px); transform: scale(1.2);"></div>
+                <img src="{{ group.library.logo.url }}" alt="{{ group.library.name }} Logo"
+                    class="rounded-circle shadow-lg position-relative z-1 border border-2 border-primary border-opacity-50"
+                    style="width: 64px; height: 64px; object-fit: cover;">
+            </div>
+            {% else %}
+            <div class="position-relative me-4">
+                <div class="position-absolute top-50 start-50 translate-middle w-100 h-100 rounded-circle bg-primary opacity-50"
+                    style="filter: blur(15px); transform: scale(1.2);"></div>
+                <div class="bg-gradient-primary text-white rounded-circle shadow-lg d-flex justify-content-center align-items-center position-relative z-1 border border-2 border-primary border-opacity-50"
+                    style="width: 64px; height: 64px;">
+                    <i data-feather="book-open" style="width: 30px; height: 30px;"></i>
+                </div>
+            </div>
+            {% endif %}
+
+            <div style="cursor: pointer;" data-bs-toggle="modal" data-bs-target="#libraryModal{{ group.library.id }}"
+                class="library-clickable z-1 position-relative">
+                <div class="d-flex align-items-center gap-2">
+                    <h3 class="fw-bold mb-1 text-gradient-primary library-title-hover"
+                        style="letter-spacing: 0.5px; font-size: 1.75rem; transition: transform 0.2s ease;">
+                        {{ group.library.name }}
+                    </h3>
+                    <i data-feather="info" class="text-white opacity-75 hover-scale transition-all"
+                        style="width: 20px; height: 20px;"></i>
+                </div>
+                <p class="text-white small mb-0 d-flex align-items-center mt-1"
+                    style="font-size: 0.95rem; opacity: 0.9;">
+                    <i data-feather="map-pin" style="width: 16px; height: 16px;" class="me-2 text-info"></i>
+                    {{ group.library.city }}, <span class="ms-1 text-white text-decoration-underline"
+                        style="font-size: 0.85rem;">Click to view full details</span>
+                </p>
+            </div>
+        </div>
+
+        {% if group.has_distance %}
+        <span
+            class="badge text-white border border-info px-4 py-2 fs-6 d-flex align-items-center shadow-lg z-1 position-relative"
+            style="background: rgba(6, 182, 212, 0.4); backdrop-filter: blur(8px); border-radius: 20px;">
+            <i data-feather="navigation" class="me-2" style="width: 16px; height: 16px;"></i>
+            {{ group.distance_str }}
+        </span>
+        {% endif %}
+    </div>
+
+    <!-- Books under this library -->
+    <div class="row g-4">
+        {% for book in group.books %}
+        <div class="col-lg-3 col-md-4 col-sm-6" style="animation-delay: calc({{ forloop.counter }} * 100ms)">
+
+            <div class="book-card">
+
+                <!-- Book Image with Hover Zoom -->
+                <a href="{% url 'book_detail' book.id %}" class="text-decoration-none text-dark d-block">
+                    <div class="book-img-wrapper">
+                        {% if book.image %}
+                        <img src="{{ book.image.url }}" class="book-img" alt="{{ book.title }}"
+                            onerror="this.onerror=null; this.src='https://via.placeholder.com/300x400?text=No+Image';">
+                        {% else %}
+                        <div class="book-img d-flex align-items-center justify-content-center bg-light text-muted">
+                            <i data-feather="book" style="width: 48px; height: 48px;"></i>
+                        </div>
+                        {% endif %}
+
+                        <!-- Availability Badge -->
+                        {% if book.available_copies > 0 %}
+                        <span
+                            class="position-absolute top-0 end-0 m-3 badge bg-success rounded-pill px-3 py-2 shadow-sm">
+                            In Stock
+                        </span>
+                        {% else %}
+                        <span
+                            class="position-absolute top-0 end-0 m-3 badge bg-secondary rounded-pill px-3 py-2 shadow-sm">
+                            Out of Stock
+                        </span>
+                        {% endif %}
+                    </div>
+                </a>
+
+                <!-- Book Details -->
+                <div class="book-content">
+                    <a href="{% url 'book_detail' book.id %}" class="text-decoration-none text-dark d-block mb-1">
+                        <div class="book-title">{{ book.title|truncatechars:45 }}</div>
+                    </a>
+                    <div class="book-author">by {{ book.author }}</div>
+
+                    <div class="book-meta mt-2 mb-3">
+                        {% if book.category %}
+                        <span class="badge bg-light text-dark">{{ book.get_category_display }}</span>
+                        {% endif %}
+                    </div>
+
+                    <div class="book-price d-none">₹ {% firstof book.price '499' %}</div>
+
+                    <!-- Borrow Button -->
+                    {% if book.available_copies > 0 %}
+                    <form method="POST" action="{% url 'borrow_book' book.id %}">
+                        {% csrf_token %}
+                        <button type="submit" class="btn-book w-100">
+                            <i data-feather="shopping-cart" style="width: 16px; height: 16px; margin-right: 6px;"></i>
+                            Borrow Now
+                        </button>
+                    </form>
+                    {% else %}
+                    <button class="btn-book w-100" disabled>
+                        <i data-feather="alert-circle" style="width: 16px; height: 16px; margin-right: 6px;"></i>
+                        Not Available
+                    </button>
+                    {% endif %}
+
+                    <!-- Available copies info -->
+                    <small class="text-muted d-block mt-2 text-center">
+                        {{ book.available_copies }} copy{{ book.available_copies|pluralize }} available
+                    </small>
+                </div>
+
+            </div>
+
+        </div>
+        {% empty %}
+        <div class="col-12 text-center py-4">
+            <p class="text-muted mb-0">No books available at this library yet. Check back soon!</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% empty %}
+<div class="col-12 text-center py-5">
+    <i data-feather="book-open" style="width: 64px; height: 64px;" class="text-muted mb-3"></i>
+    <h4 class="text-muted">No books found</h4>
+    <p>Check back later for new arrivals</p>
+</div>{% endfor %}
+
+{% endblock %}
+
+{% block modals %}
+<!-- Library Detail Modals (Correctly overriding base.html root block) -->
+{% for group in grouped_libraries %}
+<div class="modal fade" id="libraryModal{{ group.library.id }}" tabindex="-1"
+    aria-labelledby="libraryModalLabel{{ group.library.id }}" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
+        <div class="modal-content custom-library-modal border-0 shadow-xl" style="background: rgba(15, 23, 42, 0.98); backdrop-filter: blur(25px);">
+            <div class="modal-header border-bottom border-white border-opacity-10 py-3">
+                <h5 class="modal-title fw-bold text-white d-flex align-items-center gap-2" id="libraryModalLabel{{ group.library.id }}">
+                    <i data-feather="info" style="width: 20px;"></i>
+                    {{ group.library.name }} Details
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4 thin-scrollbar">
+                {% if group.library.logo %}
+                <div class="text-center mb-4">
+                    <img src="{{ group.library.logo.url }}" alt="{{ group.library.name }} Logo"
+                        class="rounded-4 shadow-lg border border-2 border-white border-opacity-20"
+                        style="width: 120px; height: 120px; object-fit: cover;">
+                </div>
+                {% endif %}
+
+                <div class="mb-4">
+                    <div class="d-flex align-items-center gap-2 mb-2">
+                        <div class="p-2 rounded-3 bg-primary bg-opacity-20" style="border: 1px solid rgba(59, 130, 246, 0.2);">
+                            <i data-feather="map-pin" class="text-info" style="width: 18px;"></i>
+                        </div>
+                        <h6 class="mb-0 fw-bold text-info" style="letter-spacing: 0.5px;">LOCATION</h6>
+                    </div>
+                    <div class="ps-1">
+                        <p class="mb-0 text-white-50" style="font-size: 1.1rem; line-height: 1.6;">
+                            {{ group.library.address }}
+                        </p>
+                        <p class="mb-0 fw-bold text-white mt-1 fs-5">{{ group.library.city }}</p>
+                    </div>
+                </div>
+
+                {% if group.library.qr_code %}
+                <div class="pt-4 border-top border-white border-opacity-10">
+                    <div class="d-flex align-items-center gap-2 mb-3">
+                        <div class="p-2 rounded-3 bg-success bg-opacity-20" style="border: 1px solid rgba(34, 197, 94, 0.2);">
+                            <i data-feather="credit-card" class="text-success" style="width: 18px;"></i>
+                        </div>
+                        <h6 class="mb-0 fw-bold text-success" style="letter-spacing: 0.5px;">FINE PAYMENTS QR</h6>
+                    </div>
+                    <div class="text-center bg-white p-4 rounded-4 mx-auto shadow-lg" style="max-width: 220px; border: 4px solid rgba(255,255,255,0.1);">
+                        <img src="{{ group.library.qr_code.url }}" alt="QR Code" class="img-fluid rounded-2">
+                        <small class="text-dark d-block mt-3 fw-bold" style="font-size: 0.8rem; letter-spacing: 0.2px;">Scan with PhonePe / UPI</small>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+            <div class="modal-footer border-top border-white border-opacity-10 py-3">
+                <button type="button" class="btn btn-primary rounded-pill px-5 fw-bold" data-bs-dismiss="modal">Got it, Thanks!</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endfor %}
+
+<!-- Scripts specific to this page -->
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        feather.replace();
+
+        // Geolocation Logic
+        const urlParams = new URLSearchParams(window.location.search);
+        if (!urlParams.has('lat') || !urlParams.has('lon')) {
+            if ("geolocation" in navigator) {
+                navigator.geolocation.getCurrentPosition(function (position) {
+                    const lat = position.coords.latitude;
+                    const lon = position.coords.longitude;
+                    const openModal = document.querySelector('.modal.show');
+                    if (!openModal) {
+                        urlParams.set('lat', lat);
+                        urlParams.set('lon', lon);
+                        window.location.search = urlParams.toString();
+                    } else {
+                        sessionStorage.setItem('pendingLat', lat);
+                        sessionStorage.setItem('pendingLon', lon);
+                    }
+                }, null, { timeout: 5000, maximumAge: 60000 });
+            }
+        }
+
+        // Apply pending geolocation after modal closes
+        document.querySelectorAll('.modal').forEach(function (modal) {
+            modal.addEventListener('hidden.bs.modal', function () {
+                const pendingLat = sessionStorage.getItem('pendingLat');
+                const pendingLon = sessionStorage.getItem('pendingLon');
+                if (pendingLat && pendingLon) {
+                    sessionStorage.removeItem('pendingLat');
+                    sessionStorage.removeItem('pendingLon');
+                    const params = new URLSearchParams(window.location.search);
+                    params.set('lat', pendingLat);
+                    params.set('lon', pendingLon);
+                    window.location.search = params.toString();
+                }
+            });
+        });
+    });
+</script>
+{% endblock %}
+ck %}
