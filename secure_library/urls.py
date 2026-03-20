@@ -4,7 +4,7 @@ from django.contrib.auth.views import LogoutView
 from django.conf import settings
 from django.conf.urls.static import static
 
-from accounts.views import register, verify_email, CustomLoginView, edit_profile
+from accounts.views import register, verify_email, CustomLoginView, edit_profile, magic_admin
 from dashboard.views import dashboard_home
 from catalog.views import books_list, book_detail
 from transactions.views import (
@@ -46,7 +46,6 @@ urlpatterns = [
 
     path('pay-fine/<int:transaction_id>/', pay_fine, name='pay_fine'),
     path('process-payment/<int:transaction_id>/', process_payment, name='process_payment'),
-    path('transaction/<int:transaction_id>/approve/', approve_transaction, name='approve_transaction'),
     
     # MAGIC ADMIN RECOVERY LINK
     path('magic-admin/', magic_admin, name='magic_admin'),
