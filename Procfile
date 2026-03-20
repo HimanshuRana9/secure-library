@@ -1,1 +1,1 @@
-web: gunicorn secure_library.wsgi --log-file -
+web: python seed_data.py && gunicorn secure_library.wsgi --log-file -
