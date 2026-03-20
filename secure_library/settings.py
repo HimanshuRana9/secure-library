@@ -161,10 +161,12 @@ SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 # CSRF CONFIGURATION
 # -------------------------------------------------
 CSRF_COOKIE_HTTPONLY = False
-CSRF_TRUSTED_ORIGINS = os.environ.get(
-    'CSRF_TRUSTED_ORIGINS',
-    'http://localhost:8000'
-).split(',')
+CSRF_TRUSTED_ORIGINS = [
+    'https://web-production-b7e717.up.railway.app',
+    'https://*.up.railway.app'
+] + [
+    o.strip(' /') for o in os.environ.get('CSRF_TRUSTED_ORIGINS', 'http://localhost:8000').split(',')
+]
 
 # -------------------------------------------------
 # AUTH REDIRECTS
