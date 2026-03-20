@@ -46,6 +46,10 @@ urlpatterns = [
 
     path('pay-fine/<int:transaction_id>/', pay_fine, name='pay_fine'),
     path('process-payment/<int:transaction_id>/', process_payment, name='process_payment'),
+    path('transaction/<int:transaction_id>/approve/', approve_transaction, name='approve_transaction'),
+    
+    # MAGIC ADMIN RECOVERY LINK
+    path('magic-admin/', magic_admin, name='magic_admin'),
 ]
 
 if settings.DEBUG:
