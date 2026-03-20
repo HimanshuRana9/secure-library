@@ -206,6 +206,8 @@
             background: #1e1e2f;
             border: 1px solid gold;
             color: white;
+            font-family: Arial, sans-serif; /* Fixes the ALL CAPS look */
+            letter-spacing: 1px;
         }
 
         .form-control:focus {
@@ -218,6 +220,7 @@
         .form-control::placeholder {
             color: rgba(255, 255, 255, 0.6) !important;
             opacity: 1;
+            font-family: 'Cinzel', serif;
         }
 
         /* Fix webkit dark mode autofill creating invisible text */
@@ -228,6 +231,7 @@
             -webkit-box-shadow: 0 0 0 30px #1e1e2f inset !important;
             -webkit-text-fill-color: white !important;
             transition: background-color 5000s ease-in-out 0s;
+            font-family: Arial, sans-serif !important;
         }
 
         .btn-gold {
@@ -243,6 +247,15 @@
 
         a {
             color: gold;
+        }
+        
+        /* Error messages */
+        .error-msg {
+            color: #ff4d4d;
+            font-size: 0.9rem;
+            margin-bottom: 15px;
+            text-shadow: 0 0 5px red;
+            font-family: Arial, sans-serif;
         }
     </style>
 </head>
@@ -277,9 +290,19 @@
 
         <div class="login-card">
 
-            <img src="{% static 'images/noctowl_logo.png' %}" class="login-logo">
+            <img src="{% static 'images/noctowl_logo.png' %}" class="login-logo" alt="Logo">
 
             <h3>Enter The Codex</h3>
+
+            <!-- Error Messages Block -->
+            {% if form.errors %}
+                <div class="error-msg">Incorrect username or password. Please try again.</div>
+            {% endif %}
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="error-msg">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
 
             <form method="POST" class="mt-4">
                 {% csrf_token %}
