@@ -25,6 +25,7 @@ DEBUG = os.environ.get('DEBUG', 'True') == 'True'
 ALLOWED_HOSTS = [
     '.up.railway.app',
     '.onrender.com',
+    '.pythonanywhere.com',
     'localhost',
     '127.0.0.1'
 ] + os.environ.get('ALLOWED_HOSTS', '').split(',')
@@ -165,7 +166,8 @@ SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 CSRF_COOKIE_HTTPONLY = False
 CSRF_TRUSTED_ORIGINS = [
     'https://*.up.railway.app',
-    'https://*.onrender.com'
+    'https://*.onrender.com',
+    'https://*.pythonanywhere.com'
 ] + [
     o.strip(' /') for o in os.environ.get('CSRF_TRUSTED_ORIGINS', 'http://localhost:8000').split(',')
 ]
