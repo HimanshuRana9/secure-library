@@ -22,10 +22,12 @@ SECRET_KEY = os.environ.get(
 
 DEBUG = os.environ.get('DEBUG', 'True') == 'True'
 
-ALLOWED_HOSTS = os.environ.get(
-    'ALLOWED_HOSTS',
-    'localhost,127.0.0.1'
-).split(',')
+ALLOWED_HOSTS = [
+    '.up.railway.app',
+    '.onrender.com',
+    'localhost',
+    '127.0.0.1'
+] + os.environ.get('ALLOWED_HOSTS', '').split(',')
 
 # -------------------------------------------------
 # PRODUCTION SECURITY (auto-activates when DEBUG=False)
@@ -162,8 +164,8 @@ SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 # -------------------------------------------------
 CSRF_COOKIE_HTTPONLY = False
 CSRF_TRUSTED_ORIGINS = [
-    'https://web-production-b7e717.up.railway.app',
-    'https://*.up.railway.app'
+    'https://*.up.railway.app',
+    'https://*.onrender.com'
 ] + [
     o.strip(' /') for o in os.environ.get('CSRF_TRUSTED_ORIGINS', 'http://localhost:8000').split(',')
 ]
