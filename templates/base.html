@@ -228,7 +228,11 @@
 
         function toggleSidebar() {
             const sidebar = document.getElementById("sidebar");
-            sidebar.classList.toggle("collapsed");
+            if (window.innerWidth <= 992) {
+                sidebar.classList.toggle("show");
+            } else {
+                sidebar.classList.toggle("collapsed");
+            }
         }
 
     </script>
