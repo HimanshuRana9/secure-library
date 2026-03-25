@@ -20,7 +20,7 @@
             background: radial-gradient(circle at 50% 30%, #1e293b 0%, #000 85%);
         }
 
-        /* 🌕 Moon */
+        /* 🌕 Moon & Rays */
         .moon {
             position: absolute;
             top: 60px;
@@ -28,17 +28,23 @@
             width: 180px;
             height: 180px;
             border-radius: 50%;
-            background: radial-gradient(circle, #fff 30%, #fcd34d 70%);
-            box-shadow: 0 0 80px rgba(255, 215, 0, 0.6);
+            background: #fff;
+            box-shadow: 
+                0 0 80px 40px rgba(255, 215, 0, 0.4),
+                0 0 150px 80px rgba(255, 255, 255, 0.2), /* Rays / glow */
+                inset -20px -20px 40px rgba(255, 215, 0, 0.8);
         }
 
         @media (max-width: 768px) {
             .moon {
-                top: 0px;
-                right: 0px;
-                width: 100px;
-                height: 100px;
-                box-shadow: 0 0 40px rgba(255, 215, 0, 0.4);
+                top: -20px;
+                right: -20px;
+                width: 130px;
+                height: 130px;
+                box-shadow: 
+                    0 0 60px 30px rgba(255, 215, 0, 0.4),
+                    0 0 100px 50px rgba(255, 255, 255, 0.2),
+                    inset -15px -15px 30px rgba(255, 215, 0, 0.8);
             }
         }
 
@@ -267,6 +273,39 @@
             text-shadow: 0 0 5px red;
             font-family: Arial, sans-serif;
         }
+
+        /* 🌠 Shooting Stars */
+        .shooting-star {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: #fff;
+            border-radius: 50%;
+            box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.1), 0 0 0 8px rgba(255, 255, 255, 0.1), 0 0 20px #fff;
+            animation: shooting 4s linear infinite;
+            opacity: 0;
+            z-index: 1;
+        }
+
+        .shooting-star::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 100px;
+            height: 1px;
+            background: linear-gradient(90deg, #fff, transparent);
+        }
+
+        @keyframes shooting {
+            0% { transform: translateX(0) translateY(0) rotate(-45deg); opacity: 1; }
+            100% { transform: translateX(-500px) translateY(500px) rotate(-45deg); opacity: 0; }
+        }
+        
+        .star-1 { top: 5%; left: 80%; animation-delay: 0s; }
+        .star-2 { top: 20%; left: 95%; animation-delay: 2s; }
+        .star-3 { top: 0%; left: 60%; animation-delay: 5s; }
+        .star-4 { top: 30%; left: 85%; animation-delay: 7s; }
     </style>
 </head>
 
@@ -274,6 +313,12 @@
 
     <!-- 🌕 Moon -->
     <div class="moon"></div>
+
+    <!-- 🌠 Shooting Stars -->
+    <div class="shooting-star star-1"></div>
+    <div class="shooting-star star-2"></div>
+    <div class="shooting-star star-3"></div>
+    <div class="shooting-star star-4"></div>
 
     <!-- 📚 Glowing Book Light -->
     <div class="book-glow"></div>
