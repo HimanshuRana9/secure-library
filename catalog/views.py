@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.db.models import Q, Avg
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
-from .models import Book, Review, Wishlist
+from .models import Book, Review, Wishlist, Category
 from transactions.models import Transaction
 import math
 
@@ -40,7 +40,10 @@ def books_list(request):
         )
         
     if category_param:
-        books = books.filter(category=category_param)
+        try:
+            books = books.filter(category_id=category_param)
+        except ValueError:
+            pass
 
     from libraries.models import Library
     
@@ -117,7 +120,7 @@ def books_list(request):
     return render(request, 'books.html', {
         'grouped_libraries': grouped_libraries,
         'recommended': recommended,
-        'categories': Book.CATEGORY_CHOICES,
+        'categories': [(str(c.id), c.name) for c in Category.objects.all()],
         'selected_category': category_param,
         'has_location': has_location
     })
