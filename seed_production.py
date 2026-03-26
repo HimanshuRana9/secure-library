@@ -9,7 +9,7 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'secure_library.settings')
 django.setup()
 
 from libraries.models import Library
-from catalog.models import Book
+from catalog.models import Book, Category
 from django.contrib.auth.models import User
 from catalog.models import Review
 
@@ -19,6 +19,7 @@ def run_seeder():
     print("Clearing old data to avoid duplicates...")
     Review.objects.all().delete()
     Book.objects.all().delete()
+    Category.objects.all().delete()
     Library.objects.all().delete()
 
     print("📚 Creating 7 Libraries in NCR...")
@@ -44,58 +45,58 @@ def run_seeder():
 
     books_data = [
         # Programming
-        ("Clean Code", "Robert C. Martin", "PROGRAMMING"),
-        ("Introduction to Algorithms", "Thomas H. Cormen", "PROGRAMMING"),
-        ("You Don't Know JS", "Kyle Simpson", "PROGRAMMING"),
-        ("Python Crash Course", "Eric Matthes", "PROGRAMMING"),
-        ("The Pragmatic Programmer", "Andrew Hunt", "PROGRAMMING"),
-        ("Head First Java", "Kathy Sierra", "PROGRAMMING"),
-        ("Design Patterns", "Erich Gamma", "PROGRAMMING"),
+        ("Clean Code", "Robert C. Martin", "Programming"),
+        ("Introduction to Algorithms", "Thomas H. Cormen", "Programming"),
+        ("You Don't Know JS", "Kyle Simpson", "Programming"),
+        ("Python Crash Course", "Eric Matthes", "Programming"),
+        ("The Pragmatic Programmer", "Andrew Hunt", "Programming"),
+        ("Head First Java", "Kathy Sierra", "Programming"),
+        ("Design Patterns", "Erich Gamma", "Programming"),
 
         # AI
-        ("AI: A Modern Approach", "Stuart Russell", "AI"),
-        ("Deep Learning", "Ian Goodfellow", "AI"),
-        ("Machine Learning Yearning", "Andrew Ng", "AI"),
-        ("Pattern Recognition", "Christopher Bishop", "AI"),
-        ("AI Superpowers", "Kai-Fu Lee", "AI"),
-        ("Life 3.0", "Max Tegmark", "AI"),
-        ("Human Compatible", "Stuart Russell", "AI"),
+        ("AI: A Modern Approach", "Stuart Russell", "Artificial Intelligence"),
+        ("Deep Learning", "Ian Goodfellow", "Artificial Intelligence"),
+        ("Machine Learning Yearning", "Andrew Ng", "Artificial Intelligence"),
+        ("Pattern Recognition", "Christopher Bishop", "Artificial Intelligence"),
+        ("AI Superpowers", "Kai-Fu Lee", "Artificial Intelligence"),
+        ("Life 3.0", "Max Tegmark", "Artificial Intelligence"),
+        ("Human Compatible", "Stuart Russell", "Artificial Intelligence"),
 
         # ML
-        ("Hands-On Machine Learning", "Aurélien Géron", "ML"),
-        ("Machine Learning", "Tom Mitchell", "ML"),
-        ("Deep Learning with Python", "François Chollet", "ML"),
-        ("Practical Statistics for Data Science", "Bruce", "ML"),
-        ("ML for Absolute Beginners", "Oliver Theobald", "ML"),
-        ("Python ML", "Sebastian Raschka", "ML"),
-        ("Probabilistic ML", "Kevin Murphy", "ML"),
+        ("Hands-On Machine Learning", "Aurélien Géron", "Machine Learning"),
+        ("Machine Learning", "Tom Mitchell", "Machine Learning"),
+        ("Deep Learning with Python", "François Chollet", "Machine Learning"),
+        ("Practical Statistics for Data Science", "Bruce", "Machine Learning"),
+        ("ML for Absolute Beginners", "Oliver Theobald", "Machine Learning"),
+        ("Python ML", "Sebastian Raschka", "Machine Learning"),
+        ("Probabilistic ML", "Kevin Murphy", "Machine Learning"),
 
         # Fiction
-        ("Harry Potter", "J.K. Rowling", "FICTION"),
-        ("The Alchemist", "Paulo Coelho", "FICTION"),
-        ("The Hobbit", "J.R.R. Tolkien", "FICTION"),
-        ("To Kill a Mockingbird", "Harper Lee", "FICTION"),
-        ("1984", "George Orwell", "FICTION"),
-        ("Pride and Prejudice", "Jane Austen", "FICTION"),
-        ("The Book Thief", "Markus Zusak", "FICTION"),
+        ("Harry Potter", "J.K. Rowling", "Fiction"),
+        ("The Alchemist", "Paulo Coelho", "Fiction"),
+        ("The Hobbit", "J.R.R. Tolkien", "Fiction"),
+        ("To Kill a Mockingbird", "Harper Lee", "Fiction"),
+        ("1984", "George Orwell", "Fiction"),
+        ("Pride and Prejudice", "Jane Austen", "Fiction"),
+        ("The Book Thief", "Markus Zusak", "Fiction"),
 
         # History
-        ("Sapiens", "Yuval Noah Harari", "HISTORY"),
-        ("Guns, Germs, and Steel", "Jared Diamond", "HISTORY"),
-        ("India After Gandhi", "Ramachandra Guha", "HISTORY"),
-        ("The Silk Roads", "Peter Frankopan", "HISTORY"),
-        ("World History", "H.G. Wells", "HISTORY"),
-        ("The Discovery of India", "Nehru", "HISTORY"),
-        ("A Brief History of Time", "Stephen Hawking", "HISTORY"),
+        ("Sapiens", "Yuval Noah Harari", "History"),
+        ("Guns, Germs, and Steel", "Jared Diamond", "History"),
+        ("India After Gandhi", "Ramachandra Guha", "History"),
+        ("The Silk Roads", "Peter Frankopan", "History"),
+        ("World History", "H.G. Wells", "History"),
+        ("The Discovery of India", "Nehru", "History"),
+        ("A Brief History of Time", "Stephen Hawking", "History"),
 
         # Self Help
-        ("Atomic Habits", "James Clear", "SELFHELP"),
-        ("Think and Grow Rich", "Napoleon Hill", "SELFHELP"),
-        ("Rich Dad Poor Dad", "Robert Kiyosaki", "SELFHELP"),
-        ("The Power of Now", "Eckhart Tolle", "SELFHELP"),
-        ("7 Habits of Highly Effective People", "Stephen Covey", "SELFHELP"),
-        ("Deep Work", "Cal Newport", "SELFHELP"),
-        ("Can't Hurt Me", "David Goggins", "SELFHELP"),
+        ("Atomic Habits", "James Clear", "Self Help"),
+        ("Think and Grow Rich", "Napoleon Hill", "Self Help"),
+        ("Rich Dad Poor Dad", "Robert Kiyosaki", "Self Help"),
+        ("The Power of Now", "Eckhart Tolle", "Self Help"),
+        ("7 Habits of Highly Effective People", "Stephen Covey", "Self Help"),
+        ("Deep Work", "Cal Newport", "Self Help"),
+        ("Can't Hurt Me", "David Goggins", "Self Help"),
 
         # UPSC
         ("Indian Polity", "M. Laxmikanth", "UPSC"),
@@ -107,33 +108,35 @@ def run_seeder():
         ("Ethics", "Lexicon", "UPSC"),
 
         # Anime / Manga
-        ("Naruto Vol. 1", "Masashi Kishimoto", "MANGA"),
-        ("One Piece Vol. 1", "Eiichiro Oda", "MANGA"),
-        ("Attack on Titan Vol. 1", "Hajime Isayama", "MANGA"),
-        ("Death Note Vol. 1", "Tsugumi Ohba", "MANGA"),
-        ("Demon Slayer Vol. 1", "Koyoharu Gotouge", "MANGA"),
-        ("My Hero Academia Vol. 1", "Kohei Horikoshi", "MANGA"),
-        ("Tokyo Ghoul Vol. 1", "Sui Ishida", "MANGA"),
+        ("Naruto Vol. 1", "Masashi Kishimoto", "Anime / Manga"),
+        ("One Piece Vol. 1", "Eiichiro Oda", "Anime / Manga"),
+        ("Attack on Titan Vol. 1", "Hajime Isayama", "Anime / Manga"),
+        ("Death Note Vol. 1", "Tsugumi Ohba", "Anime / Manga"),
+        ("Demon Slayer Vol. 1", "Koyoharu Gotouge", "Anime / Manga"),
+        ("My Hero Academia Vol. 1", "Kohei Horikoshi", "Anime / Manga"),
+        ("Tokyo Ghoul Vol. 1", "Sui Ishida", "Anime / Manga"),
 
         # Learning
-        ("Oxford English Dictionary", "Oxford", "LEARNING"),
-        ("General Knowledge 2026", "Manohar Pandey", "LEARNING"),
-        ("Word Power Made Easy", "Norman Lewis", "LEARNING"),
-        ("Quantitative Aptitude", "R.S. Aggarwal", "LEARNING"),
-        ("Logical Reasoning", "Arun Sharma", "LEARNING"),
-        ("Computer Fundamentals", "P.K. Sinha", "LEARNING"),
-        ("Spoken English", "Rapidex", "LEARNING"),
+        ("Oxford English Dictionary", "Oxford", "Education/Learning"),
+        ("General Knowledge 2026", "Manohar Pandey", "Education/Learning"),
+        ("Word Power Made Easy", "Norman Lewis", "Education/Learning"),
+        ("Quantitative Aptitude", "R.S. Aggarwal", "Education/Learning"),
+        ("Logical Reasoning", "Arun Sharma", "Education/Learning"),
+        ("Computer Fundamentals", "P.K. Sinha", "Education/Learning"),
+        ("Spoken English", "Rapidex", "Education/Learning"),
     ]
 
-    for title, author, category in books_data:
+    for title, author, category_name in books_data:
+        cat_obj, created = Category.objects.get_or_create(name=category_name)
+        
         t_copies = random.randint(3, 15)
         a_copies = random.randint(1, t_copies)
         
         Book.objects.create(
             title=title,
             author=author,
-            category=category,
-            description=f"A masterful book on {category.lower()} by {author}.",
+            category=cat_obj,
+            description=f"A masterful book on {category_name} by {author}.",
             rating=random.randint(4, 5),
             fine_per_day=5,
             library=random.choice(created_libraries),

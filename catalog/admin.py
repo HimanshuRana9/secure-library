@@ -1,5 +1,7 @@
 from django.contrib import admin
-from .models import Book, Review, Wishlist
+from .models import Book, Review, Wishlist, Category
+
+admin.site.register(Category)
 
 
 @admin.register(Book)

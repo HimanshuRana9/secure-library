@@ -3,24 +3,26 @@ from django.contrib.auth.models import User
 from libraries.models import Library
 
 
-class Book(models.Model):
+class Category(models.Model):
+    name = models.CharField(max_length=100, unique=True)
+    description = models.TextField(blank=True, default="")
 
-    CATEGORY_CHOICES = [
-        ('PROGRAMMING', 'Programming'),
-        ('FICTION', 'Fiction'),
-        ('SELFHELP', 'Self Help'),
-        ('HISTORY', 'History'),
-        ('AI', 'Artificial Intelligence'),
-        ('ML', 'Machine Learning'),
-        ('UPSC', 'UPSC'),
-    ]
+    class Meta:
+        verbose_name_plural = "Categories"
+
+    def __str__(self):
+        return self.name
+
+class Book(models.Model):
 
     title = models.CharField(max_length=200)
     author = models.CharField(max_length=200)
 
-    category = models.CharField(
-        max_length=50,
-        choices=CATEGORY_CHOICES
+    category = models.ForeignKey(
+        Category,
+        on_delete=models.SET_NULL,
+        null=True,
+        related_name="books"
     )
 
     description = models.TextField(blank=True, default="")
