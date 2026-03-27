@@ -221,7 +221,7 @@ h6 {
 }
 
 .book-img-wrapper {
-    height: 280px;
+    height: 200px;
     overflow: hidden;
     position: relative;
     background: #f1f5f9;
@@ -239,7 +239,7 @@ h6 {
 }
 
 .book-content {
-    padding: 20px 16px 18px;
+    padding: 10px 12px 14px;
     flex: 1;
     display: flex;
     flex-direction: column;
@@ -248,18 +248,14 @@ h6 {
 /* FIXED: Book title with proper line-clamp (no warnings) */
 .book-title {
     font-weight: 600;
-    font-size: 1rem;
-    line-height: 1.4;
-    margin-bottom: 6px;
+    font-size: 0.85rem;
+    line-height: 1.3;
+    margin-bottom: 4px;
     color: #1e293b;
-    min-height: 44px;
+    min-height: 36px;
     display: -webkit-box;
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
-    line-clamp: 2;
-    /* Standard property for compatibility */
-    box-orient: vertical;
-    /* Standard property */
     overflow: hidden;
     text-overflow: ellipsis;
 }
