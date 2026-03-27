@@ -101,77 +101,73 @@
     </div>
 
     <!-- Books under this library -->
-    <div class="row g-4">
+    <div class="row g-3">
         {% for book in group.books %}
-        <div class="col-lg-3 col-md-4 col-sm-6" style="animation-delay: calc({{ forloop.counter }} * 100ms)">
+        <div class="col-6 col-md-4 col-lg-3" style="animation-delay: calc({{ forloop.counter }} * 80ms)">
 
-            <div class="book-card">
+            <div class="book-card h-100 d-flex flex-column">
 
-                <!-- Book Image with Hover Zoom -->
-                <a href="{% url 'book_detail' book.id %}" class="text-decoration-none text-dark d-block">
-                    <div class="book-img-wrapper">
+                <!-- Book Image -->
+                <a href="{% url 'book_detail' book.id %}" class="text-decoration-none d-block">
+                    <div class="book-img-wrapper position-relative">
                         {% if book.image %}
-                        <img src="{{ book.image.url }}" class="book-img" alt="{{ book.title }}"
-                            onerror="this.onerror=null; this.src='https://via.placeholder.com/300x400?text=No+Image';">
+                        <img src="{{ book.image.url }}" class="book-img w-100" alt="{{ book.title }}"
+                            onerror="this.onerror=null; this.src='https://via.placeholder.com/300x400?text=No+Cover';"
+                            style="height:180px;object-fit:cover;">
                         {% else %}
-                        <div class="book-img d-flex align-items-center justify-content-center bg-light text-muted">
-                            <i data-feather="book" style="width: 48px; height: 48px;"></i>
+                        <div class="book-img d-flex align-items-center justify-content-center bg-light text-muted"
+                            style="height:180px;">
+                            <i data-feather="book" style="width: 40px; height: 40px;"></i>
                         </div>
                         {% endif %}
 
-                        <!-- Availability Badge -->
+                        <!-- Availability Badge top corner -->
                         {% if book.available_copies > 0 %}
-                        <span
-                            class="position-absolute top-0 end-0 m-3 badge bg-success rounded-pill px-3 py-2 shadow-sm">
+                        <span class="position-absolute top-0 end-0 m-1 badge bg-success rounded-pill px-2 py-1 shadow-sm" style="font-size:10px;">
                             In Stock
                         </span>
                         {% else %}
-                        <span
-                            class="position-absolute top-0 end-0 m-3 badge bg-secondary rounded-pill px-3 py-2 shadow-sm">
+                        <span class="position-absolute top-0 end-0 m-1 badge bg-secondary rounded-pill px-2 py-1 shadow-sm" style="font-size:10px;">
                             Out of Stock
                         </span>
                         {% endif %}
                     </div>
                 </a>
 
-                <!-- Book Details -->
-                <div class="book-content">
+                <!-- Book Details — compact like Amazon -->
+                <div class="book-content p-2 flex-grow-1 d-flex flex-column">
                     <a href="{% url 'book_detail' book.id %}" class="text-decoration-none text-dark d-block mb-1">
-                        <div class="book-title">{{ book.title|truncatechars:45 }}</div>
+                        <div class="book-title fw-semibold lh-sm" style="font-size:13px;line-height:1.3;">{{ book.title|truncatechars:35 }}</div>
                     </a>
-                    <div class="book-author">by {{ book.author }}</div>
+                    <div class="text-muted d-none d-md-block" style="font-size:12px;">by {{ book.author|truncatechars:25 }}</div>
 
-                    <div class="book-meta mt-2 mb-3">
-                        {% if book.category %}
-                        <span class="badge bg-light text-dark">{{ book.category.name }}</span>
-                        {% endif %}
-                    </div>
-
-                    <div class="book-price d-none">₹ {% firstof book.price '499' %}</div>
-
-                    <!-- Borrow Button -->
-                    {% if book.available_copies > 0 %}
-                    <form method="POST" action="{% url 'borrow_book' book.id %}">
-                        {% csrf_token %}
-                        <button type="submit" class="btn-book w-100">
-                            <i data-feather="shopping-cart" style="width: 16px; height: 16px; margin-right: 6px;"></i>
-                            Borrow Now
-                        </button>
-                    </form>
-                    {% else %}
-                    <button class="btn-book w-100" disabled>
-                        <i data-feather="alert-circle" style="width: 16px; height: 16px; margin-right: 6px;"></i>
-                        Not Available
-                    </button>
+                    {% if book.category %}
+                    <span class="badge rounded-pill mt-1 px-2 py-1 align-self-start" style="background:#f0f0f0;color:#555;font-size:10px;">{{ book.category.name }}</span>
                     {% endif %}
 
-                    <!-- Available copies info -->
-                    <small class="text-muted d-block mt-2 text-center">
-                        {{ book.available_copies }} copy{{ book.available_copies|pluralize }} available
-                    </small>
+                    <div class="mt-auto pt-2">
+                        {% if book.available_copies > 0 %}
+                        <form method="POST" action="{% url 'borrow_book' book.id %}">
+                            {% csrf_token %}
+                            <button type="submit" class="btn-book w-100" style="font-size:12px;padding:8px 4px;">
+                                <i data-feather="shopping-cart" style="width:13px;height:13px;margin-right:4px;"></i>
+                                Borrow
+                            </button>
+                        </form>
+                        {% else %}
+                        <button class="btn-book w-100" disabled style="font-size:12px;padding:8px 4px;">
+                            <i data-feather="alert-circle" style="width:13px;height:13px;margin-right:4px;"></i>
+                            Unavailable
+                        </button>
+                        {% endif %}
+                        <small class="text-muted d-block mt-1 text-center" style="font-size:10px;">
+                            {{ book.available_copies }} cop{{ book.available_copies|pluralize:"y,ies" }} left
+                        </small>
+                    </div>
                 </div>
 
             </div>
+
 
         </div>
         {% empty %}

@@ -157,8 +157,8 @@ MEDIA_ROOT = BASE_DIR / 'media'
 # -------------------------------------------------
 # SESSION CONFIGURATION
 # -------------------------------------------------
-SESSION_COOKIE_AGE = 3600
-SESSION_EXPIRE_AT_BROWSER_CLOSE = True
+SESSION_COOKIE_AGE = 60 * 60 * 24 * 7   # 7 days
+SESSION_EXPIRE_AT_BROWSER_CLOSE = False   # Keep session alive across tabs/app switches
 
 # -------------------------------------------------
 # CSRF CONFIGURATION
